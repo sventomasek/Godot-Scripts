@@ -20,7 +20,6 @@ var mouseInWindow = true
 var mousePosition = Vector2(0, 0)
 var joystickDirection = Vector2(0, 0)
 var currentDirOffset = Vector2(dirOffset.x, dirOffset.y)
-var velocity = Vector2(0, 0)
 var facingRight = true
 var facingUp = true
 
