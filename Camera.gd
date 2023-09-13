@@ -9,7 +9,7 @@ extends Camera2D
 @export var speed = Vector2(0.1, 0.25)
 @export var fixedOffset = Vector2(0, -15)
 @export var dirOffset = Vector2(0, 0)
-@export var dirOffsetSpeed = 0.05
+@export var dirOffsetSpeed = Vector2(0.05, 0.05)
 
 @export var mouseMoveAmount = Vector2(0.3, 0.3)
 @export var joystickMoveAmount = Vector2(40, 25)
@@ -19,9 +19,10 @@ var usingMouse = true
 var mouseInWindow = true
 var mousePosition = Vector2(0, 0)
 var joystickDirection = Vector2(0, 0)
-var currentDirOffset = Vector2(dirOffset.x, 0)
+var currentDirOffset = Vector2(dirOffset.x, dirOffset.y)
 var velocity = Vector2(0, 0)
 var facingRight = true
+var facingUp = true
 
 func _physics_process(delta):
 	var myPosition = Vector2(0, 0)
@@ -40,9 +41,19 @@ func _physics_process(delta):
 		facingRight = false
 		
 	if facingRight:
-		currentDirOffset.x = lerp(currentDirOffset.x, dirOffset.x, dirOffsetSpeed)
+		currentDirOffset.x = lerp(currentDirOffset.x, dirOffset.x, dirOffsetSpeed.x)
 	else:
-		currentDirOffset.x = lerp(currentDirOffset.x, -dirOffset.x, dirOffsetSpeed)
+		currentDirOffset.x = lerp(currentDirOffset.x, -dirOffset.x, dirOffsetSpeed.x)
+		
+	if target.velocity.y < 0:
+		facingUp = true
+	else: if target.velocity.y > 0:
+		facingUp = false
+		
+	if facingUp:
+		currentDirOffset.y = lerp(currentDirOffset.y, dirOffset.y, dirOffsetSpeed.y)
+	else:
+		currentDirOffset.y = lerp(currentDirOffset.y, -dirOffset.y, dirOffsetSpeed.y)
 	
 	# Set the position of the camera
 	myPosition.x = lerp(targetPosition.x, fixedOffset.x + mousePosition.x, mouseMoveAmount.x)
@@ -54,7 +65,7 @@ func _physics_process(delta):
 	if usingMouse:
 		# Mouse Input
 		posX = lerp(position.x, myPosition.x + currentDirOffset.x, speed.x)
-		posY = lerp(position.y, myPosition.y, speed.y)
+		posY = lerp(position.y, myPosition.y + currentDirOffset.y, speed.y)
 	else:
 		# Dead Zone
 		if (joystickDirection.x < joystickDead && joystickDirection.x > -joystickDead) && (joystickDirection.y < joystickDead && joystickDirection.y > -joystickDead):
