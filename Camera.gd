@@ -2,10 +2,16 @@ extends Camera2D
 
 @onready var target = get_tree().get_nodes_in_group("Player")[0]
 
-@export_category("Camera.gd")
 @export var ignoreX = false
 @export var ignoreY = false
 @export var checkIfMouseInWindow = true
+
+@export_category("Move when Target outside Camera")
+@export var boundsMovement = false
+@export var boundsPosition = Vector2(192, 108)
+# NOTE: When using Bounds Movement, I recommend not using any additional Offsets like
+# Fixed or Directional Offset because it will move the camera wrong by a few units
+# Using Mouse/Joystick Movement is fine though
 
 @export_category("Settings")
 @export var speed = Vector2(0.1, 0.25)
@@ -22,17 +28,38 @@ extends Camera2D
 @export var joystickMoveAmount = Vector2(40, 25)
 @export var joystickDead = 0.2
 
+var targetPosition = Vector2.ZERO
+
 var usingMouse = true
 var mouseInWindow = true
-var mousePosition = Vector2(0, 0)
-var joystickDirection = Vector2(0, 0)
+var mousePosition = Vector2.ZERO
+var joystickDirection = Vector2.ZERO
 var currentDirOffset = Vector2(dirOffset.x, dirOffset.y)
 var facingRight = true
 var facingUp = true
 var idleDelayValue = 0
 var isIdle = true
+var cameraBoundPosition = Vector2.ZERO
 
 func _process(delta):
+	# Find the place where the Camera should be, based on Target's position
+	if (!boundsMovement):
+		targetPosition = target.position
+	else:
+		if target.position.x >= cameraBoundPosition.x + fixedOffset.x + boundsPosition.x / 2:
+			cameraBoundPosition.x += boundsPosition.x + fixedOffset.x
+		elif target.position.x <= cameraBoundPosition.x + fixedOffset.x - boundsPosition.x / 2:
+			cameraBoundPosition.x -= boundsPosition.x + fixedOffset.x
+			
+		targetPosition.x = cameraBoundPosition.x
+			
+		if target.position.y >= cameraBoundPosition.y + fixedOffset.y + boundsPosition.y / 2:
+			cameraBoundPosition.y += boundsPosition.y + fixedOffset.y
+		elif target.position.y <= cameraBoundPosition.y + fixedOffset.y - boundsPosition.y / 2:
+			cameraBoundPosition.y -= boundsPosition.y + fixedOffset.y
+			
+		targetPosition.y = cameraBoundPosition.y
+	
 	# Center the Camera when Idle
 	idleDelayValue -= delta
 	
@@ -71,7 +98,6 @@ func _process(delta):
 
 func _physics_process(delta):
 	var myPosition = Vector2(0, 0)
-	var targetPosition = target.position
 	
 	# Change direction of the Directional Offset
 	if centerOnIdle && isIdle:
@@ -105,8 +131,8 @@ func _physics_process(delta):
 			joystickDirection = Vector2.ZERO
 			
 		# Controller Input
-		posX = lerp(position.x, target.position.x + fixedOffset.x + currentDirOffset.x + (joystickDirection.x * joystickMoveAmount.x), speed.x)
-		posY = lerp(position.y, target.position.y + fixedOffset.y + (joystickDirection.y * joystickMoveAmount.y), speed.y)
+		posX = lerp(position.x, targetPosition.x + fixedOffset.x + currentDirOffset.x + (joystickDirection.x * joystickMoveAmount.x), speed.x)
+		posY = lerp(position.y, targetPosition.y + fixedOffset.y + (joystickDirection.y * joystickMoveAmount.y), speed.y)
 		
 	# Apply the Camera's Position
 	if !ignoreX: position.x = posX
