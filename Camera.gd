@@ -4,7 +4,6 @@ extends Camera2D
 
 @export var ignoreX = false
 @export var ignoreY = false
-@export var checkIfMouseInWindow = true
 
 @export_category("Move when Target outside Camera")
 @export var boundsMovement = false
@@ -24,10 +23,19 @@ extends Camera2D
 @export var dirOffsetSpeed = Vector2(0.05, 0.05)
 
 @export_category("Mouse and Joystick Movement")
+@export var checkIfMouseInWindow = true
 @export var mouseMoveAmount = Vector2(0.3, 0.3)
 @export var joystickMoveAmount = Vector2(40, 25)
 @export var joystickDead = 0.2
 
+# Screenshake [activate it by calling the function screenshake(time, strength, speed)]
+var shakeStrength = 0
+var shakeSpeed = 0
+var shakeTimer = 0
+var shakeRecoverySpeed = 0.5
+var shakeOffset = Vector2.ZERO
+
+## The rest of the stuff
 var targetPosition = Vector2.ZERO
 
 var usingMouse = true
@@ -95,6 +103,16 @@ func _process(delta):
 	# Switch to Controller Input
 	if (joystickDirection.x > joystickDead || joystickDirection.x < -joystickDead) || (joystickDirection.y > joystickDead || joystickDirection.y < -joystickDead):
 		usingMouse = false
+		
+	# Screenshake
+	#if Input.is_key_pressed(KEY_F1): screenshake(0.2, 10, 0.01)
+	
+	if shakeTimer > 0:
+		var random = Vector2(randf_range(-shakeStrength, shakeStrength), randf_range(-shakeStrength, shakeStrength))
+		shakeOffset = lerp(shakeOffset, random, shakeSpeed)
+		shakeTimer -= delta
+	else:
+		shakeOffset = lerp(shakeOffset, Vector2.ZERO, shakeRecoverySpeed)
 
 func _physics_process(delta):
 	var myPosition = Vector2(0, 0)
@@ -123,16 +141,16 @@ func _physics_process(delta):
 	
 	if usingMouse:
 		# Mouse Input
-		posX = lerp(position.x, myPosition.x + fixedOffset.x + currentDirOffset.x, speed.x)
-		posY = lerp(position.y, myPosition.y + fixedOffset.y + currentDirOffset.y, speed.y)
+		posX = lerp(position.x, myPosition.x + fixedOffset.x + currentDirOffset.x + shakeOffset.x, speed.x)
+		posY = lerp(position.y, myPosition.y + fixedOffset.y + currentDirOffset.y + shakeOffset.y, speed.y)
 	else:
 		# Dead Zone
 		if (joystickDirection.x < joystickDead && joystickDirection.x > -joystickDead) && (joystickDirection.y < joystickDead && joystickDirection.y > -joystickDead):
 			joystickDirection = Vector2.ZERO
 			
 		# Controller Input
-		posX = lerp(position.x, targetPosition.x + fixedOffset.x + currentDirOffset.x + (joystickDirection.x * joystickMoveAmount.x), speed.x)
-		posY = lerp(position.y, targetPosition.y + fixedOffset.y + (joystickDirection.y * joystickMoveAmount.y), speed.y)
+		posX = lerp(position.x, targetPosition.x + fixedOffset.x + currentDirOffset.x + shakeOffset.x + (joystickDirection.x * joystickMoveAmount.x), speed.x)
+		posY = lerp(position.y, targetPosition.y + fixedOffset.y + currentDirOffset.y + shakeOffset.y + (joystickDirection.y * joystickMoveAmount.y), speed.y)
 		
 	# Apply the Camera's Position
 	if !ignoreX: position.x = posX
@@ -150,3 +168,8 @@ func _notification(event):
 			mouseInWindow = false
 		NOTIFICATION_WM_MOUSE_ENTER:
 			mouseInWindow = true
+
+func screenshake(time: float, strength: float, speed: float):
+	shakeStrength = strength
+	shakeSpeed = speed
+	shakeTimer = time
