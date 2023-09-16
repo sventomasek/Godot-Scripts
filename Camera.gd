@@ -1,6 +1,6 @@
 extends Camera2D
 
-@export var target : CharacterBody2D
+@export var target : Node2D
 
 @export var ignoreX = false
 @export var ignoreY = false
