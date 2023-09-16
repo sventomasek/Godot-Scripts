@@ -1,6 +1,6 @@
 extends Camera2D
 
-@onready var target = get_tree().get_nodes_in_group("Player")[0]
+@export var target : CharacterBody2D
 
 @export var ignoreX = false
 @export var ignoreY = false
