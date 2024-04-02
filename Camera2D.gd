@@ -28,7 +28,7 @@ extends Camera2D
 @export var joystickMoveAmount = Vector2(40, 25)
 @export var joystickDead = 0.2
 
-# Screenshake [activate it by calling the function screenshake(time, strength, speed)]
+# Screenshake [activate it by calling the function StartScreenshake(time, strength, speed)]
 var shakeStrength = 0
 var shakeSpeed = 0
 var shakeTimer = 0
