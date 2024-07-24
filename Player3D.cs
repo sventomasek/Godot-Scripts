@@ -26,7 +26,7 @@ public partial class Player : CharacterBody3D
 	[Export] private float groundAccel = 0.1f;
 	[Export] private float airAccel = 0.025f;
 
-	[Export] private float jumpForce = 5.5f;
+	[Export] private float jumpForce = 6f;
 	[Export] private float gravity = 30.0f;
 
 	[ExportCategory("Camera")]
@@ -293,6 +293,7 @@ public partial class Player : CharacterBody3D
 			else if (myFloor.IsInGroup("Dirt")) footstepPlayer.Stream = dirtSteps.PickRandom();
 			else if (myFloor.IsInGroup("Stone")) footstepPlayer.Stream = stoneSteps.PickRandom();
 			else if (myFloor.IsInGroup("Wood"))
+   			{
 				footstepPlayer.Stream = woodSteps.PickRandom();
 				if (woodCreakDelay_ <= 0 && random.RandfRange(0f, 1f) < woodCreakChance)
 				{
@@ -300,6 +301,7 @@ public partial class Player : CharacterBody3D
 					woodCreakDelay_ = woodCreakDelay;
 				}
 				woodCreakDelay_ -= 1;
+    			}
 		}
 
 		// Set volume & pitch
