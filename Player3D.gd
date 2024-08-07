@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-@export_category("Movement")
+@export_group("Movement")
 @export var moveSpeed = 5.0
 @export var acceleration = 7.5
 var moveDir: Vector3
@@ -8,11 +8,11 @@ var moveDir: Vector3
 @export var jumpForce = 4.5
 @export var gravity = 9.8
 
-@export_category("Camera")
+@export_group("Camera")
 @export var mouseSens = Vector2(0.2, 0.2)
 @onready var camera = $Camera3D
 
-@export_category("Holding Objects")
+@export_group("Holding Objects")
 @export var throwForce = 7.5
 @export var followSpeed = 5.0
 @export var followDistance = 2.5
