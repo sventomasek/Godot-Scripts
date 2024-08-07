@@ -5,24 +5,24 @@ extends Camera2D
 @export var ignoreX = false
 @export var ignoreY = false
 
-@export_category("Move when Target outside Camera")
+@export_group("Move when Target outside Camera")
 @export var boundsMovement = false
 @export var boundsPosition = Vector2(192, 108)
 # NOTE: When using Bounds Movement, I recommend not using any additional Offsets like
 # Fixed or Directional Offset because it will move the camera wrong by a few units
 # Using Mouse/Joystick Movement is fine though
 
-@export_category("Settings")
+@export_group("Settings")
 @export var speed = Vector2(0.1, 0.25)
 @export var fixedOffset = Vector2(0, -15)
 
-@export_category("Directional Offset")
+@export_group("Directional Offset")
 @export var centerOnIdle = true
 @export var idleDelay = 3
 @export var dirOffset = Vector2(0, 0)
 @export var dirOffsetSpeed = Vector2(0.05, 0.05)
 
-@export_category("Mouse and Joystick Movement")
+@export_group("Mouse and Joystick Movement")
 @export var checkIfMouseInWindow = true
 @export var mouseMoveAmount = Vector2(0.3, 0.3)
 @export var joystickMoveAmount = Vector2(40, 25)
