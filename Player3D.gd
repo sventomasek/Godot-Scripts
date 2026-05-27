@@ -72,7 +72,7 @@ func handle_holding_objects():
 	if Input.is_action_just_pressed("throw"):
 		if heldObject != null: throw_held_object()
 		
-	# Dropping Objects
+	# Dropping and Grabbing Objects
 	if Input.is_action_just_pressed("interact"):
 		if heldObject != null: drop_held_object()
 		elif interactRay.is_colliding(): set_held_object(interactRay.get_collider())
