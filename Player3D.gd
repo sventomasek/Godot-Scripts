@@ -15,6 +15,7 @@ var moveDir: Vector3
 @export_group("Holding Objects")
 @export var throwForce = 7.5
 @export var followSpeed = 5.0
+@export var rotateSpeed = 10.0 # Set this to 0 if you don't want the object to face the camera
 @export var followDistance = 2.5
 @export var maxDistanceFromCamera = 5.0
 @export var dropBelowPlayer = false
@@ -26,7 +27,7 @@ var heldObject: RigidBody3D
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
-func _process(delta):
+func _process(_delta):
 	# Move Input
 	var inputDir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	moveDir = (transform.basis * Vector3(inputDir.x, 0, inputDir.y)).normalized()
@@ -75,13 +76,26 @@ func handle_holding_objects():
 	# Dropping and Grabbing Objects
 	if Input.is_action_just_pressed("interact"):
 		if heldObject != null: drop_held_object()
-		elif interactRay.is_colliding(): set_held_object(interactRay.get_collider())
+		elif interactRay.is_colliding() && interactRay.get_collider() is RigidBody3D: set_held_object(interactRay.get_collider())
 		
 	# Object Following
-	if heldObject != null:
+	if heldObject != null && is_instance_valid(heldObject):
+		# Move the object in front of the camera
 		var targetPos = camera.global_transform.origin + (camera.global_basis * Vector3(0, 0, -followDistance)) # 2.5 units in front of camera
 		var objectPos = heldObject.global_transform.origin # Held object position
 		heldObject.linear_velocity = (targetPos - objectPos) * followSpeed # Our desired position
+
+		# Align the object rotation to the camera rotation
+		if rotateSpeed != 0.0:
+			var targetRot = camera.global_basis.get_rotation_quaternion()
+			var objectRot = heldObject.global_basis.get_rotation_quaternion()
+			var finalRot = targetRot * objectRot.inverse()
+			
+			var axis = finalRot.get_axis()
+			var angle = finalRot.get_angle()
+			if angle > PI: angle -= TAU
+
+			heldObject.angular_velocity = axis * angle * rotateSpeed
 		
 		# Drop the object if it's too far away from the camera
 		if heldObject.global_position.distance_to(camera.global_position) > maxDistanceFromCamera:
